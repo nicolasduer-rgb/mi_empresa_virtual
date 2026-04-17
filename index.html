@@ -187,6 +187,7 @@ class ExteriorScene extends Phaser.Scene {
 // ═══════════════════════════════════════════════════════════════
 class InteriorScene extends Phaser.Scene {
     constructor() { super('InteriorScene'); }
+    init(data) { this.spawnSource = data.spawnSource || 'exterior'; }
 
     create() {
         const T = 8; const W = this.scale.width; const H = this.scale.height; const CX = W / 2;
@@ -234,14 +235,22 @@ class InteriorScene extends Phaser.Scene {
         w(90, 100, T, 200); w(90, 330, T, 140); w(340, 90, T, 180); w(340, 320, T, 160);
         w(670, 230, T, 460); w(670, 495, T, 70); w(670, 645, T, 110);
         w(775, 125, 210, T); w(775, 245, 210, T); w(775, 355, 210, T); w(775, 460, 210, T);
-        w(880, 25, T, 50); w(880, 112, T, 25); w(880, 145, T, 40); w(880, 230, T, 30);
-        w(880, 262, T, 35); w(880, 342, T, 25); w(880, 372, T, 35); w(880, 447, T, 25);
-        w(880, 507, T, 95); w(880, 655, T, 90); w(135, 400, 90, T); w(310, 400, 140, T);
-        w(410, 400, 100, T); w(605, 400, 130, T); w(90, 550, T, 300); w(340, 465, T, 130); w(340, 640, T, 120);
+        w(880, 20, T, 40); w(880, 112.5, T, 25); w(880, 140, T, 30); w(880, 230, T, 30);
+        w(880, 257.5, T, 25); w(880, 342.5, T, 25); w(880, 370, T, 30); w(880, 452.5, T, 15);
+        w(880, 650, T, 100); w(135, 400, 90, T); w(310, 400, 140, T);
+        w(410, 400, 100, T); w(605, 400, 130, T); w(90, 550, T, 300); w(340, 460, T, 120); w(340, 640, T, 120);
 
         // Salida de Emergencia (Cartel)
         this.add.circle(OFF+45, 680, 25, 0x000000, 0.4).setDepth(20);
         this.add.text(OFF+45, 680, 'SALIDA DE\nEMERGENCIA', { fontFamily: '"Press Start 2P"', fontSize: '8px', fill: '#00ff00', align: 'center', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5).setDepth(20);
+
+        // Escalera al 2do Piso (Derecha)
+        this.add.circle(OFF+880, 500, 25, 0x000000, 0.4).setDepth(20);
+        this.add.text(OFF+880, 500, 'ACCESO AL\n2DO PISO', { fontFamily: '"Press Start 2P"', fontSize: '8px', fill: '#3498db', align: 'center', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5).setDepth(20);
+
+        // Escalera al 2do Piso (Izquierda - Pared exterior)
+        this.add.circle(OFF+30, 530, 25, 0x000000, 0.4).setDepth(20);
+        this.add.text(OFF+30, 530, 'ACCESO AL\n2DO PISO', { fontFamily: '"Press Start 2P"', fontSize: '8px', fill: '#3498db', align: 'center', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5).setDepth(20);
 
         // Muebles
         const mesa1 = this.add.rectangle(OFF+215, 230, 80, 220, 0xEBE4D8).setDepth(2);
@@ -255,9 +264,13 @@ class InteriorScene extends Phaser.Scene {
         });
         this.add.rectangle(OFF+215, 85, 30, 20, chrC, 0.8).setDepth(1);
 
-        this.player = this.physics.add.sprite(OFF+940, 680, 'personaje').setScale(0.10).setOrigin(0.5, 1).setDepth(10);
+        let spawnX = OFF + 940, spawnY = 680;
+        if (this.spawnSource === 'second_floor' || this.spawnSource === 'second_floor_right') { spawnX = OFF + 930; spawnY = 500; }
+        else if (this.spawnSource === 'second_floor_left') { spawnX = OFF + 30; spawnY = 470; }
+        
+        this.player = this.physics.add.sprite(spawnX, spawnY, 'personaje').setScale(0.10).setOrigin(0.5, 1).setDepth(10);
         this.player.setCollideWorldBounds(true);
-        this.player.body.setSize(200, 400).setOffset(92, 600);
+        this.player.body.setSize(180, 180).setOffset(102, 840);
         this.physics.add.collider(this.player, this.walls);
         this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -328,11 +341,158 @@ class InteriorScene extends Phaser.Scene {
             this.time.delayedCall(900, () => this.scene.start('ExteriorScene'));
         }
 
+        if (!this.exiting && Phaser.Math.Distance.Between(this.player.x, this.player.y, (this.scale.width-1000)/2 + 880, 500) < 40) {
+            this.exiting = true; this.cameras.main.fadeOut(800);
+            this.time.delayedCall(900, () => this.scene.start('SecondFloorScene', { spawnSource: 'interior_right' }));
+        }
+
+        if (!this.exiting && Phaser.Math.Distance.Between(this.player.x, this.player.y, (this.scale.width-1000)/2 + 30, 530) < 40) {
+            this.exiting = true; this.cameras.main.fadeOut(800);
+            this.time.delayedCall(900, () => this.scene.start('SecondFloorScene', { spawnSource: 'interior_left' }));
+        }
+
         const d1 = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y);
         const d2 = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc2.x, this.npc2.y);
         if (d1 < 80) { this.npcHint.setPosition(this.npc.x, this.npc.y - 50).setAlpha(1); }
         else if (d2 < 80) { this.npcHint.setPosition(this.npc2.x, this.npc2.y - 50).setAlpha(1); }
         else { this.npcHint.setAlpha(0); if (this.dialogOpen) { this.dialogBox.setAlpha(0); this.dialogText.setAlpha(0); this.dialogOpen = false; } }
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════
+class SecondFloorScene extends Phaser.Scene {
+    constructor() { super('SecondFloorScene'); }
+    init(data) { this.spawnSource = data.spawnSource || 'interior_right'; }
+
+    create() {
+        const T = 8; const W = this.scale.width; const H = this.scale.height; const CX = W / 2;
+        const OFF = (W - 1000) / 2;
+        this.cameras.main.fadeIn(800);
+
+        // Piso
+        this.add.rectangle(CX, 350, W, 700, 0x8B7355);
+        const g = this.add.graphics();
+        g.lineStyle(1, 0x6B5B3A, 0.3);
+        for (let y = 0; y < 700; y += 28) { g.moveTo(0, y); g.lineTo(W, y); }
+        for (let r = 0; r < 25; r++) {
+            const yy = r * 28, offX = (r % 2) * 55;
+            for (let x = offX; x < W; x += 110) { g.moveTo(x, yy); g.lineTo(x, yy + 28); }
+        }
+        g.strokePath();
+
+        // Room Tints
+        const tint = (x1, y1, x2, y2, c) => this.add.rectangle(OFF+x1+(x2-x1)/2, y1+(y2-y1)/2, x2-x1, y2-y1, c, 0.12);
+        // Top Rooms
+        tint(100, 0, 400, 300, 0x44CC44); 
+        tint(400, 0, 900, 300, 0x222222); 
+        
+        // Bottom Rooms
+        tint(100, 420, 250, 700, 0x4444CC);
+        tint(250, 420, 450, 700, 0xCCCC44);
+        tint(450, 420, 650, 700, 0xCC8844);
+        tint(650, 420, 900, 700, 0x44CCCC);
+        
+        // Corridor
+        tint(50, 300, 950, 420, 0x886644);
+
+        // Labels
+        const ls = { fontFamily: '"Press Start 2P"', fontSize: '9px', fill: '#fff', stroke: '#000', strokeThickness: 3, align: 'center' };
+        this.add.text(OFF+250, 150, 'SALA\nMONTEVIDEO', ls).setOrigin(0.5);
+        this.add.text(OFF+175, 560, 'BAÑO', ls).setOrigin(0.5);
+        this.add.text(OFF+350, 560, 'OFICINA\nGABO', ls).setOrigin(0.5);
+        this.add.text(OFF+550, 560, 'OFICINA\nALE', ls).setOrigin(0.5);
+        this.add.text(OFF+775, 560, 'OFICINA\nNESTOR', ls).setOrigin(0.5);
+
+        this.walls = this.physics.add.staticGroup();
+        const w = (cx, cy, ww, hh) => {
+            const r = this.add.rectangle(OFF+cx, cy, ww, hh, 0x333333).setDepth(5);
+            this.walls.add(r); r.body.setSize(ww, hh); r.body.updateFromGameObject();
+        };
+        
+        // Outer walls
+        w(500, T/2, 800, T); // Top
+        w(500, 700-T/2, 800, T); // Bottom
+        w(100, 150, T, 300); // Left top
+        w(100, 560, T, 280); // Left bottom
+        w(900, 150, T, 300); // Right top
+        w(900, 560, T, 280); // Right bottom
+        
+        // Corridor walls (Top y=300)
+        // Montevideo gap: 200-260
+        w(150, 300, 100, T); w(580, 300, 640, T); 
+        
+        // Corridor walls (Bottom y=420)
+        // Baño gap: 150-210, Gabo: 300-360, Ale: 500-560, Nestor: 750-810
+        w(125, 420, 50, T); 
+        w(255, 420, 90, T); 
+        w(430, 420, 140, T); 
+        w(655, 420, 190, T); 
+        w(855, 420, 90, T);
+
+        // Vertical separating walls
+        w(400, 150, T, 300); // Montevideo / Vacio
+        w(250, 560, T, 280); // Baño / Gabo
+        w(450, 560, T, 280); // Gabo / Ale
+        w(650, 560, T, 280); // Ale / Nestor
+        
+        // Corridor ends
+        w(50, 330, T, 60); w(50, 410, T, 20); // Left wall with gap
+        
+        // Return signs (Escaleras)
+        this.add.circle(OFF+50, 380, 25, 0x000000, 0.4).setDepth(20);
+        this.add.text(OFF+50, 380, 'VOLVER AL\n1ER PISO', { fontFamily: '"Press Start 2P"', fontSize: '8px', fill: '#ff0000', align: 'center', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5).setDepth(20);
+
+        this.add.circle(OFF+950, 380, 25, 0x000000, 0.4).setDepth(20);
+        this.add.text(OFF+950, 380, 'VOLVER AL\n1ER PISO', { fontFamily: '"Press Start 2P"', fontSize: '8px', fill: '#ff0000', align: 'center', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5).setDepth(20);
+
+        let spawnX = OFF + 890, spawnY = 380;
+        if (this.spawnSource === 'interior_left') { spawnX = OFF + 110; spawnY = 380; }
+
+        this.player = this.physics.add.sprite(spawnX, spawnY, 'personaje').setScale(0.10).setOrigin(0.5, 1).setDepth(10);
+        this.player.setCollideWorldBounds(true);
+        this.player.body.setSize(180, 180).setOffset(102, 840);
+        this.physics.add.collider(this.player, this.walls);
+        this.cursors = this.input.keyboard.createCursorKeys();
+
+        this.roomLabel = this.add.text(CX, 16, '📍 2DO PISO', {
+            fontFamily: '"Press Start 2P"', fontSize: '10px', fill: '#ffe082', backgroundColor: '#000000aa', padding: { x: 10, y: 10 }
+        }).setOrigin(0.5, 0).setDepth(30).setScrollFactor(0);
+
+        this.rooms = [
+            { name: 'SALA MONTEVIDEO', x1: OFF+100, y1: 0, x2: OFF+400, y2: 300 },
+            { name: 'ESPACIO VACIO', x1: OFF+400, y1: 0, x2: OFF+900, y2: 300 },
+            { name: 'BAÑO', x1: OFF+100, y1: 420, x2: OFF+250, y2: 700 },
+            { name: 'OFICINA GABO', x1: OFF+250, y1: 420, x2: OFF+450, y2: 700 },
+            { name: 'OFICINA ALE', x1: OFF+450, y1: 420, x2: OFF+650, y2: 700 },
+            { name: 'OFICINA NESTOR', x1: OFF+650, y1: 420, x2: OFF+900, y2: 700 },
+            { name: 'PASILLO', x1: OFF, y1: 300, x2: OFF+1000, y2: 420 }
+        ];
+
+        this.exiting = false;
+        createMobileUI(this);
+    }
+
+    update() {
+        this.player.setVelocity(0);
+        if (this.cursors.left.isDown || this.mobileKeys.left) { this.player.setVelocityX(-220); this.player.anims.play('izq', true); }
+        else if (this.cursors.right.isDown || this.mobileKeys.right) { this.player.setVelocityX(220); this.player.anims.play('der', true); }
+        else if (this.cursors.up.isDown || this.mobileKeys.up) { this.player.setVelocityY(-220); this.player.anims.play('atras', true); }
+        else if (this.cursors.down.isDown || this.mobileKeys.down) { this.player.setVelocityY(220); this.player.anims.play('frente', true); }
+
+        const px = this.player.x, py = this.player.y - 30;
+        let found = 'Pasillo';
+        for (const r of this.rooms) { if (px >= r.x1 && px <= r.x2 && py >= r.y1 && py <= r.y2) { found = r.name; break; } }
+        this.roomLabel.setText('📍 ' + found);
+
+        if (!this.exiting && Phaser.Math.Distance.Between(this.player.x, this.player.y, (this.scale.width-1000)/2 + 50, 380) < 40) {
+            this.exiting = true; this.cameras.main.fadeOut(800);
+            this.time.delayedCall(900, () => this.scene.start('InteriorScene', { spawnSource: 'second_floor_left' }));
+        }
+        
+        if (!this.exiting && Phaser.Math.Distance.Between(this.player.x, this.player.y, (this.scale.width-1000)/2 + 950, 380) < 40) {
+            this.exiting = true; this.cameras.main.fadeOut(800);
+            this.time.delayedCall(900, () => this.scene.start('InteriorScene', { spawnSource: 'second_floor_right' }));
+        }
     }
 }
 
@@ -351,7 +511,7 @@ const config = {
     },
     input: { activePointers: 3 },
     physics: { default: 'arcade', arcade: { debug: false } },
-    scene: [ExteriorScene, InteriorScene]
+    scene: [ExteriorScene, InteriorScene, SecondFloorScene]
 };
 
 // Lógica de Inicio (Splash Screen)
