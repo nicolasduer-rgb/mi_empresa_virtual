@@ -6,27 +6,30 @@
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0a0a; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: 'Press Start 2P', cursive; }
+        * { margin: 0; padding: 0; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; }
+        canvas { display: block; }
     </style>
-    <link rel="manifest" href="manifest.json">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="manifest.json?v=3">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#3498db">
 </head>
 <body>
+<div id="game-app"></div>
 <script>
+// v2.1 - Fix Escala Crítica
 function createMobileUI(scene) {
     scene.mobileKeys = { left: false, right: false, up: false, down: false };
-    const h = scene.sys.game.canvas.height;
-    const w = scene.sys.game.canvas.width;
+    const h = scene.scale.height;
+    const w = scene.scale.width;
     
-    // Posicionamiento relativo al tamaño del canvas
-    const cx = 140, cy = h - 140, d = 60;
+    // Posicionamiento relativo al tamaño del canvas detectado
+    const cx = 130, cy = h - 130, d = 55;
     
     const addBtn = (x, y, key, text) => {
-        let btn = scene.add.circle(x, y, 32, 0xffffff, 0.2).setDepth(200).setScrollFactor(0).setInteractive();
-        scene.add.text(x, y, text, { fontFamily: '"Press Start 2P"', fontSize: '14px', fill: '#fff' }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
-        btn.on('pointerdown', () => { scene.mobileKeys[key] = true; btn.setAlpha(0.5); });
+        let btn = scene.add.circle(x, y, 35, 0xffffff, 0.2).setDepth(200).setScrollFactor(0).setInteractive();
+        scene.add.text(x, y, text, { fontFamily: '"Press Start 2P"', fontSize: '16px', fill: '#fff' }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
+        btn.on('pointerdown', () => { scene.mobileKeys[key] = true; btn.setAlpha(0.6); });
         btn.on('pointerup', () => { scene.mobileKeys[key] = false; btn.setAlpha(0.2); });
         btn.on('pointerout', () => { scene.mobileKeys[key] = false; btn.setAlpha(0.2); });
     };
@@ -35,7 +38,7 @@ function createMobileUI(scene) {
     addBtn(cx - d, cy, 'left', 'A');
     addBtn(cx + d, cy, 'right', 'D');
     
-    // Botón Full Screen (Esquina superior derecha)
+    // Botón Full Screen
     let fsBtn = scene.add.circle(w - 50, 50, 30, 0x3498db, 0.5).setDepth(200).setScrollFactor(0).setInteractive();
     scene.add.text(w - 50, 50, '⛶', { fontSize: '24px', fill: '#fff' }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
     fsBtn.on('pointerdown', () => {
@@ -43,14 +46,18 @@ function createMobileUI(scene) {
         else scene.scale.stopFullscreen();
     });
 
-    // Botón Acción (Esquina inferior derecha)
-    let actionBtn = scene.add.circle(w - 140, h - 140, 50, 0xff0000, 0.4).setDepth(200).setScrollFactor(0).setInteractive();
-    scene.add.text(w - 140, h - 140, 'A', { fontFamily: '"Press Start 2P"', fontSize: '28px', fill: '#fff', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
+    // Botón Acción
+    let actionBtn = scene.add.circle(w - 130, h - 130, 55, 0xff0000, 0.4).setDepth(200).setScrollFactor(0).setInteractive();
+    scene.add.text(w - 130, h - 130, 'A', { fontFamily: '"Press Start 2P"', fontSize: '32px', fill: '#fff', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
     actionBtn.on('pointerdown', () => { actionBtn.setAlpha(0.8); if(scene.tryAction) scene.tryAction(); });
     actionBtn.on('pointerup', () => actionBtn.setAlpha(0.4));
     actionBtn.on('pointerout', () => actionBtn.setAlpha(0.4));
+    
+    // Indicador de Versión (Para verificar que cargó la nueva)
+    scene.add.text(w/2, h - 20, 'v2.1 - MOBILE FIX', { fontSize: '8px', fill: '#444' }).setOrigin(0.5);
 }
 // ═══════════════════════════════════════════════════════════════
+// ... [Mismo código de escenas] ...
 //  ESCENA EXTERIOR
 // ═══════════════════════════════════════════════════════════════
 class ExteriorScene extends Phaser.Scene {
@@ -410,13 +417,17 @@ class InteriorScene extends Phaser.Scene {
 
 // ═══════════════════════════════════════════════════════════════
 const config = {
-    type: Phaser.AUTO, width: 1000, height: 700,
+    type: Phaser.AUTO,
+    width: 1000,
+    height: 700,
+    parent: 'game-app',
     backgroundColor: '#1a1a2e',
     pixelArt: true,
     antialias: false,
     scale: {
         mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        expandParent: false
     },
     input: { activePointers: 3 },
     physics: { default: 'arcade', arcade: { debug: false } },
