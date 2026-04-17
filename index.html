@@ -7,29 +7,48 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; }
-        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; }
-        #game-app { width: 100%; height: 100%; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Press Start 2P', cursive; }
+        #game-app { width: 100%; height: 100%; display: none; }
         canvas { display: block; margin: auto; }
+        
+        #splash {
+            width: 100%; height: 100%; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; background: radial-gradient(circle, #1a1a2e 0%, #000 100%);
+            color: #fff; text-align: center; position: absolute; z-index: 1000;
+        }
+        .logo { font-size: 32px; color: #3498db; margin-bottom: 40px; text-shadow: 4px 4px #000; }
+        .play-btn {
+            background: #e67e22; color: #fff; border: none; padding: 20px 40px;
+            font-family: 'Press Start 2P', cursive; font-size: 24px; cursor: pointer;
+            box-shadow: 0 6px 0 #a04000; transition: transform 0.1s;
+        }
+        .play-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #a04000; }
+        .loading { margin-top: 30px; font-size: 10px; color: #777; }
     </style>
-    <link rel="manifest" href="manifest.json?v=4">
+    <link rel="manifest" href="manifest.json?v=5">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0a0a0a">
 </head>
 <body>
+<div id="splash">
+    <div class="logo">CHAMPIONSYS<br>VIRTUAL OFFICE</div>
+    <button class="play-btn" id="btn-play">PLAY</button>
+    <div class="loading">Sugerencia: Usa el celular en horizontal</div>
+</div>
 <div id="game-app"></div>
 <script>
-// v2.2 - Final Mobile Scale Fix
+// v3.0 - WIDESCREEN & SPLASH
 function createMobileUI(scene) {
     scene.mobileKeys = { left: false, right: false, up: false, down: false };
     const h = scene.scale.height;
     const w = scene.scale.width;
     
     // Posicionamiento adaptativo basado en el tamaño detectado por el motor
-    const cx = 130, cy = h - 130, d = 55;
+    const cx = 130, cy = h - 130, d = 60;
     
     const addBtn = (x, y, key, text) => {
-        let btn = scene.add.circle(x, y, 35, 0xffffff, 0.2).setDepth(200).setScrollFactor(0).setInteractive();
-        scene.add.text(x, y, text, { fontFamily: '"Press Start 2P"', fontSize: '16px', fill: '#fff' }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
+        let btn = scene.add.circle(x, y, 40, 0xffffff, 0.2).setDepth(200).setScrollFactor(0).setInteractive();
+        scene.add.text(x, y, text, { fontFamily: '"Press Start 2P"', fontSize: '18px', fill: '#fff' }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
         btn.on('pointerdown', () => { scene.mobileKeys[key] = true; btn.setAlpha(0.6); });
         btn.on('pointerup', () => { scene.mobileKeys[key] = false; btn.setAlpha(0.2); });
         btn.on('pointerout', () => { scene.mobileKeys[key] = false; btn.setAlpha(0.2); });
@@ -40,71 +59,59 @@ function createMobileUI(scene) {
     addBtn(cx + d, cy, 'right', 'D');
     
     // Botón Full Screen
-    let fsBtn = scene.add.circle(w - 50, 50, 30, 0x3498db, 0.5).setDepth(200).setScrollFactor(0).setInteractive();
-    scene.add.text(w - 50, 50, '⛶', { fontSize: '24px', fill: '#fff' }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
+    let fsBtn = scene.add.circle(w - 60, 60, 30, 0x3498db, 0.5).setDepth(200).setScrollFactor(0).setInteractive();
+    scene.add.text(w - 60, 60, '⛶', { fontSize: '24px', fill: '#fff' }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
     fsBtn.on('pointerdown', () => {
         if (!scene.scale.isFullscreen) scene.scale.startFullscreen();
         else scene.scale.stopFullscreen();
     });
 
     // Botón Acción
-    let actionBtn = scene.add.circle(w - 130, h - 130, 55, 0xff0000, 0.4).setDepth(200).setScrollFactor(0).setInteractive();
-    scene.add.text(w - 130, h - 130, 'A', { fontFamily: '"Press Start 2P"', fontSize: '32px', fill: '#fff', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
+    let actionBtn = scene.add.circle(w - 140, h - 140, 60, 0xff0000, 0.4).setDepth(200).setScrollFactor(0).setInteractive();
+    scene.add.text(w - 140, h - 140, 'A', { fontFamily: '"Press Start 2P"', fontSize: '32px', fill: '#fff', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
     actionBtn.on('pointerdown', () => { actionBtn.setAlpha(0.8); if(scene.tryAction) scene.tryAction(); });
     actionBtn.on('pointerup', () => actionBtn.setAlpha(0.4));
     actionBtn.on('pointerout', () => actionBtn.setAlpha(0.4));
-    
-    // Indicador de Versión
-    scene.add.text(w/2, 20, 'v2.2 FIX', { fontSize: '10px', fill: '#555' }).setOrigin(0.5).setDepth(300);
 }
-// ═══════════════════════════════════════════════════════════════
-// ... [Mismo código de escenas] ...
-// ... [Mismo código de escenas] ...
-//  ESCENA EXTERIOR
 // ═══════════════════════════════════════════════════════════════
 class ExteriorScene extends Phaser.Scene {
     constructor() { super('ExteriorScene'); }
-    // ... resto de la clase ...
-
     preload() {
         this.load.image('cesped', 'cesped.png');
         this.load.image('camino', 'camino.png');
         this.load.image('reja', 'reja.png');
         this.load.spritesheet('personaje', 'personaje.png', { frameWidth: 384, frameHeight: 1024 });
     }
-
     create() {
-        this.doorbellRung = false;
-        this.gateOpen = false;
+        const W = this.scale.width;
+        const H = this.scale.height;
+        const CX = W / 2;
+        this.doorbellRung = false; this.gateOpen = false;
 
-        this.add.rectangle(500, 350, 1000, 700, 0x2c2c2c);
-        this.add.tileSprite(500, 200, 1000, 400, 'cesped').setAlpha(0.95);
-        this.add.tileSprite(500, 250, 150, 300, 'camino');
+        this.add.rectangle(CX, 350, W, 700, 0x2c2c2c);
+        this.add.tileSprite(CX, 200, W, 400, 'cesped').setAlpha(0.95);
+        this.add.tileSprite(CX, 250, 150, 300, 'camino');
 
         // Edificio
-        this.add.rectangle(500, 75, 1000, 150, 0x0d0d1a).setDepth(1);
-        this.add.rectangle(500, 150, 1000, 4, 0x3498db).setDepth(2);
-        this.add.text(500, 75, 'CHAMPIONSYS', { fontFamily: '"Press Start 2P"', fontSize: '40px', fill: '#fff', stroke: '#3498db', strokeThickness: 6 }).setOrigin(0.5).setDepth(3);
+        this.add.rectangle(CX, 75, W, 150, 0x0d0d1a).setDepth(1);
+        this.add.rectangle(CX, 150, W, 4, 0x3498db).setDepth(2);
+        this.add.text(CX, 75, 'CHAMPIONSYS', { fontFamily: '"Press Start 2P"', fontSize: '40px', fill: '#fff', stroke: '#3498db', strokeThickness: 6 }).setOrigin(0.5).setDepth(3);
 
-        // Rejas continuas
         this.rejaGroup = this.physics.add.staticGroup();
-        const positions = [50, 150, 250, 350, 450, 550, 650, 750, 850, 950];
-        for (const x of positions) {
+        for (let x = 50; x < W + 50; x += 100) {
             const r = this.rejaGroup.create(x, 400, 'reja').setScale(0.4).refreshBody();
-            if (x === 450) this.cL = r;
-            if (x === 550) this.cR = r;
+            if (x > CX - 100 && x < CX) this.cL = r;
+            if (x > CX && x < CX + 100) this.cR = r;
         }
 
-        // Timbre
-        this.bellGlow = this.add.circle(500, 370, 16, 0xf1c40f, 0.3).setDepth(10);
+        this.bellGlow = this.add.circle(CX, 370, 16, 0xf1c40f, 0.3).setDepth(10);
         this.tweens.add({ targets: this.bellGlow, scaleX: 1.8, scaleY: 1.8, alpha: 0.05, duration: 900, yoyo: true, repeat: -1 });
-        this.add.circle(500, 370, 10, 0xe67e22).setDepth(11);
-        this.add.circle(500, 370, 6, 0xf39c12).setDepth(12);
-        this.add.text(500, 348, '🔔', { fontSize: '18px' }).setOrigin(0.5).setDepth(12);
-        this.add.text(500, 388, 'TIMBRE', { fontFamily: '"Press Start 2P"', fontSize: '6px', fill: '#f1c40f' }).setOrigin(0.5).setDepth(12);
+        this.add.circle(CX, 370, 10, 0xe67e22).setDepth(11);
+        this.add.circle(CX, 370, 6, 0xf39c12).setDepth(12);
+        this.add.text(CX, 348, '🔔', { fontSize: '18px' }).setOrigin(0.5).setDepth(12);
+        this.add.text(CX, 388, 'TIMBRE', { fontFamily: '"Press Start 2P"', fontSize: '6px', fill: '#f1c40f' }).setOrigin(0.5).setDepth(12);
 
-        // Personaje
-        this.player = this.physics.add.sprite(500, 660, 'personaje').setScale(0.13).setOrigin(0.5, 1).setDepth(15);
+        this.player = this.physics.add.sprite(CX, 660, 'personaje').setScale(0.13).setOrigin(0.5, 1).setDepth(15);
         this.player.setCollideWorldBounds(true);
         this.player.body.setSize(200, 400).setOffset(92, 600);
 
@@ -117,35 +124,32 @@ class ExteriorScene extends Phaser.Scene {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
-        this.hintText = this.add.text(500, 470, '', { fontFamily: '"Press Start 2P"', fontSize: '10px', fill: '#ffe082', backgroundColor: '#000000cc', padding: { x: 12, y: 12 } }).setOrigin(0.5).setDepth(30).setAlpha(0);
-        this.msgText = this.add.text(500, 320, '', { fontFamily: '"Press Start 2P"', fontSize: '14px', fill: '#fff', backgroundColor: '#000000dd', padding: { x: 16, y: 16 }, lineSpacing: 6 }).setOrigin(0.5).setDepth(30).setAlpha(0);
+        this.hintText = this.add.text(CX, 470, '', { fontFamily: '"Press Start 2P"', fontSize: '10px', fill: '#ffe082', backgroundColor: '#000000cc', padding: { x: 12, y: 12 } }).setOrigin(0.5).setDepth(30).setAlpha(0);
+        this.msgText = this.add.text(CX, 320, '', { fontFamily: '"Press Start 2P"', fontSize: '14px', fill: '#fff', backgroundColor: '#000000dd', padding: { x: 16, y: 16 }, lineSpacing: 6 }).setOrigin(0.5).setDepth(30).setAlpha(0);
 
         this.showMsg('⬆️  Acercate a la reja y tocá el timbre', 4000);
         createMobileUI(this);
         this.tryAction = () => {
-            const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, 500, 425);
+            const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, CX, 425);
             if (!this.doorbellRung && !this.gateOpen && dist < 120) this.ringDoorbell();
         };
     }
-
     showMsg(text, dur) {
         this.tweens.killTweensOf(this.msgText);
         this.msgText.setText(text).setAlpha(1);
         this.tweens.add({ targets: this.msgText, alpha: 0, delay: dur || 2800, duration: 600 });
     }
-
     ringDoorbell() {
         if (this.doorbellRung) return;
         this.doorbellRung = true;
         this.hintText.setAlpha(0);
         this.tweens.killTweensOf(this.bellGlow);
         this.bellGlow.setAlpha(0);
-        let flash = this.add.circle(500, 370, 22, 0xf1c40f, 0.8).setDepth(13);
+        let flash = this.add.circle(this.scale.width/2, 370, 22, 0xf1c40f, 0.8).setDepth(13);
         this.tweens.add({ targets: flash, alpha: 0, scaleX: 3, scaleY: 3, duration: 500, onComplete: () => flash.destroy() });
         this.showMsg('🔔  ¡Din Don!  Abriendo la reja...', 2200);
         this.time.delayedCall(2500, () => this.openGate());
     }
-
     openGate() {
         this.gateOpen = true;
         this.rejaGroup.remove(this.cL, true, false);
@@ -154,7 +158,6 @@ class ExteriorScene extends Phaser.Scene {
         this.tweens.add({ targets: this.cR, x: this.cR.x + 100, alpha: 0, duration: 900 });
         this.showMsg('✅  ¡Reja abierta!  Pasá al edificio.', 3000);
     }
-
     update() {
         this.player.setVelocity(0);
         if (this.cursors.left.isDown || this.mobileKeys.left) { this.player.setVelocityX(-260); this.player.anims.play('izq', true); }
@@ -162,9 +165,24 @@ class ExteriorScene extends Phaser.Scene {
         else if (this.cursors.up.isDown || this.mobileKeys.up) { this.player.setVelocityY(-260); this.player.anims.play('atras', true); }
         else if (this.cursors.down.isDown || this.mobileKeys.down) { this.player.setVelocityY(260); this.player.anims.play('frente', true); }
 
-        const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, 500, 425);
+        const CX = this.scale.width / 2;
+        const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, CX, 425);
         if (!this.doorbellRung && !this.gateOpen) {
             if (dist < 120) {
+                this.hintText.setText('🔔  Presioná ESPACIO para tocar el timbre').setAlpha(1);
+                if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) { if(this.tryAction) this.tryAction(); }
+            } else { this.hintText.setAlpha(0); }
+        }
+        if (this.gateOpen && this.player.y < 170) {
+            this.showMsg('🏢  ¡Bienvenido a Championsys!', 2000);
+            this.time.delayedCall(1500, () => {
+                this.cameras.main.fadeOut(800, 0, 0, 0);
+                this.time.delayedCall(900, () => this.scene.start('InteriorScene'));
+            });
+            this.gateOpen = false;
+        }
+    }
+}
                 this.hintText.setText('🔔  Presioná ESPACIO para tocar el timbre').setAlpha(1);
                 if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) { if(this.tryAction) this.tryAction(); }
             } else { this.hintText.setAlpha(0); }
@@ -182,192 +200,78 @@ class ExteriorScene extends Phaser.Scene {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  ESCENA INTERIOR
-// ═══════════════════════════════════════════════════════════════
 class InteriorScene extends Phaser.Scene {
     constructor() { super('InteriorScene'); }
 
     create() {
-        const T = 8; // grosor de paredes
+        const T = 8; const W = this.scale.width; const H = this.scale.height; const CX = W / 2;
+        const OFF = (W - 1000) / 2;
         this.cameras.main.fadeIn(800);
 
-        // ── PISO DE MADERA ──
-        this.add.rectangle(500, 350, 1000, 700, 0x8B7355);
+        this.add.rectangle(CX, 350, W, 700, 0x8B7355);
         const g = this.add.graphics();
         g.lineStyle(1, 0x6B5B3A, 0.3);
-        for (let y = 0; y < 700; y += 28) { g.moveTo(0, y); g.lineTo(1000, y); }
+        for (let y = 0; y < 700; y += 28) { g.moveTo(0, y); g.lineTo(W, y); }
         for (let r = 0; r < 25; r++) {
-            const yy = r * 28, off = (r % 2) * 55;
-            for (let x = off; x < 1000; x += 110) { g.moveTo(x, yy); g.lineTo(x, yy + 28); }
+            const yy = r * 28, offX = (r % 2) * 55;
+            for (let x = offX; x < W; x += 110) { g.moveTo(x, yy); g.lineTo(x, yy + 28); }
         }
         g.strokePath();
 
-        // ── ROOM TINTS (colores sutiles por sala) ──
-        const tint = (x1, y1, x2, y2, c) => this.add.rectangle(x1+(x2-x1)/2, y1+(y2-y1)/2, x2-x1, y2-y1, c, 0.12);
-        tint(0,0,90,700, 0xCC4444);        // COCINA
-        tint(90,0,340,400, 0x44CC44);      // SALA ABIERTA
-        tint(340,0,670,400, 0x4444CC);     // SALA BPO
-        tint(670,0,880,125, 0xCCCC44);     // secretaria
-        tint(670,125,880,245, 0xCC8844);   // rrhh
-        tint(670,245,880,355, 0x44CCCC);   // ceo
-        tint(670,355,880,460, 0x88CCCC);   // Baño
-        tint(880,0,1000,700, 0x886644);    // PASILLO
-        tint(90,400,340,700, 0xCC44CC);    // MESA DE AYUDA
-        tint(340,400,670,700, 0x44CCAA);   // ALAN TURING
-        tint(670,460,880,700, 0x886644);   // lobby
+        const tint = (x1, y1, x2, y2, c) => this.add.rectangle(OFF+x1+(x2-x1)/2, y1+(y2-y1)/2, x2-x1, y2-y1, c, 0.12);
+        tint(0,0,90,700, 0xCC4444); tint(90,0,340,400, 0x44CC44); tint(340,0,670,400, 0x4444CC);
+        tint(670,0,880,125, 0xCCCC44); tint(670,125,880,245, 0xCC8844); tint(670,245,880,355, 0x44CCCC);
+        tint(670,355,880,460, 0x88CCCC); tint(880,0,1000,700, 0x886644); tint(90,400,340,700, 0xCC44CC);
+        tint(340,400,670,700, 0x44CCAA); tint(670,460,880,700, 0x886644);
 
-        // ── ROOM LABELS ──
         const ls = { fontFamily: '"Press Start 2P"', fontSize: '9px', fill: '#fff', stroke: '#000', strokeThickness: 3, align: 'center' };
-        const sm = { fontFamily: '"Press Start 2P"', fontSize: '7px', fill: '#fff', stroke: '#000', strokeThickness: 3, align: 'center' };
-        this.add.text(45, 350, 'COCINA', ls).setOrigin(0.5).setAngle(-90);
-        this.add.text(215, 200, 'SALA\nABIERTA', ls).setOrigin(0.5);
-        this.add.text(505, 200, 'SALA BPO', ls).setOrigin(0.5);
-        this.add.text(775, 62, 'Secretaría', sm).setOrigin(0.5);
-        this.add.text(775, 185, 'RRHH', sm).setOrigin(0.5);
-        this.add.text(775, 300, 'CEO', sm).setOrigin(0.5);
-        this.add.text(775, 407, 'Baño', sm).setOrigin(0.5);
-        this.add.text(940, 350, 'PASILLO', ls).setOrigin(0.5).setAngle(-90);
-        this.add.text(215, 550, 'MESA DE\nAYUDA', ls).setOrigin(0.5);
-        this.add.text(505, 550, 'ALAN\nTURING', ls).setOrigin(0.5);
+        this.add.text(OFF+45, 350, 'COCINA', ls).setOrigin(0.5).setAngle(-90);
+        this.add.text(OFF+215, 200, 'SALA\nABIERTA', ls).setOrigin(0.5);
+        this.add.text(OFF+505, 200, 'SALA BPO', ls).setOrigin(0.5);
+        this.add.text(OFF+940, 350, 'PASILLO', ls).setOrigin(0.5).setAngle(-90);
+        this.add.text(OFF+215, 550, 'MESA DE\nAYUDA', ls).setOrigin(0.5);
+        this.add.text(OFF+505, 550, 'ALAN\nTURING', ls).setOrigin(0.5);
 
-        // ── WALLS ──
         this.walls = this.physics.add.staticGroup();
         const w = (cx, cy, ww, hh) => {
-            const r = this.add.rectangle(cx, cy, ww, hh, 0x333333).setDepth(5);
-            this.walls.add(r);
-            r.body.setSize(ww, hh);
-            r.body.updateFromGameObject();
+            const r = this.add.rectangle(OFF+cx, cy, ww, hh, 0x333333).setDepth(5);
+            this.walls.add(r); r.body.setSize(ww, hh); r.body.updateFromGameObject();
         };
-
-        // Outer
-        w(500, T/2, 1000, T);               // top
-        w(T/2, 350, T, 700);                // left
-        w(1000-T/2, 350, T, 700);           // right
-        w(440, 700-T/2, 880, T);            // bottom (gap x=880-1000 = entrance)
-
-        // COCINA right (x=90) door y=200-260
-        w(90, 100, T, 200); w(90, 330, T, 140);
-        // SALA ABIERTA/BPO (x=340) door y=180-240
-        w(340, 90, T, 180); w(340, 320, T, 160);
-        // Offices left (x=670) solid y=0-460
-        w(670, 230, T, 460);
-        // x=670 bottom section door y=530-590
-        w(670, 495, T, 70); w(670, 645, T, 110);
-
-        // Office horizontal dividers
+        w(500, T/2, 1000, T); w(T/2, 350, T, 700); w(1000-T/2, 350, T, 700); w(440, 700-T/2, 880, T);
+        w(90, 100, T, 200); w(90, 330, T, 140); w(340, 90, T, 180); w(340, 320, T, 160);
+        w(670, 230, T, 460); w(670, 495, T, 70); w(670, 645, T, 110);
         w(775, 125, 210, T); w(775, 245, 210, T); w(775, 355, 210, T); w(775, 460, 210, T);
+        w(880, 25, T, 50); w(880, 112, T, 25); w(880, 145, T, 40); w(880, 230, T, 30);
+        w(880, 262, T, 35); w(880, 342, T, 25); w(880, 372, T, 35); w(880, 447, T, 25);
+        w(880, 507, T, 95); w(880, 655, T, 90); w(135, 400, 90, T); w(310, 400, 140, T);
+        w(410, 400, 100, T); w(605, 400, 130, T); w(90, 550, T, 300); w(340, 465, T, 130); w(340, 640, T, 120);
 
-        // Pasillo left (x=880) with doors
-        w(880, 25, T, 50);   w(880, 112, T, 25);  // secretaria door y=50-100
-        w(880, 145, T, 40);  w(880, 230, T, 30);  // rrhh door y=165-215
-        w(880, 262, T, 35);  w(880, 342, T, 25);  // ceo door y=280-330
-        w(880, 372, T, 35);  w(880, 447, T, 25);  // baño door y=390-435
-        w(880, 507, T, 95);  w(880, 655, T, 90);  // lobby door y=555-610
-
-        // Horizontal divider y=400 (doors x=180-240, x=480-540)
-        w(135, 400, 90, T); w(310, 400, 140, T); w(410, 400, 100, T); w(605, 400, 130, T);
-        
-        // Vertical divider for new Cocina layout x=90
-        w(90, 550, T, 300);
-
-        // Salida de Emergencia
-        this.add.circle(45, 680, 25, 0x000000, 0.4).setDepth(20);
-        this.add.text(45, 680, 'SALIDA DE\nEMERGENCIA', { fontFamily: '"Press Start 2P"', fontSize: '8px', fill: '#00ff00', align: 'center', stroke: '#000', strokeThickness: 3 }).setOrigin(0.5).setDepth(20);
-
-        // MESA AYUDA / ALAN TURING (x=340 y=400-700) door y=530-580
-        w(340, 465, T, 130); w(340, 640, T, 120);
-
-        // ── MUEBLES SALA ABIERTA ──
-        const mesa1 = this.add.rectangle(215, 230, 80, 220, 0xEBE4D8).setDepth(2);
-        this.walls.add(mesa1);
-        mesa1.body.setSize(80, 220);
-        mesa1.body.updateFromGameObject();
-
-        const mesa2 = this.add.rectangle(215, 55, 100, 40, 0xEBE4D8).setDepth(2);
-        this.walls.add(mesa2);
-        mesa2.body.setSize(100, 40);
-        mesa2.body.updateFromGameObject();
-
-        const chairColor = 0x95A5A6;
-        const cy = [145, 200, 255, 310];
-        cy.forEach(y => {
-            this.add.rectangle(162, y, 20, 30, chairColor, 0.8).setDepth(1);
-            this.add.rectangle(268, y, 20, 30, chairColor, 0.8).setDepth(1);
-        });
-        this.add.rectangle(215, 85, 30, 20, chairColor, 0.8).setDepth(1);
-
-        // ── PLAYER ──
-        this.player = this.physics.add.sprite(940, 680, 'personaje').setScale(0.10).setOrigin(0.5, 1).setDepth(10);
+        this.player = this.physics.add.sprite(OFF+940, 680, 'personaje').setScale(0.10).setOrigin(0.5, 1).setDepth(10);
         this.player.setCollideWorldBounds(true);
         this.player.body.setSize(200, 400).setOffset(92, 600);
         this.physics.add.collider(this.player, this.walls);
-
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        // Room indicator
-        this.roomLabel = this.add.text(500, 16, '📍 PASILLO', {
-            fontFamily: '"Press Start 2P"', fontSize: '10px', fill: '#ffe082', backgroundColor: '#000000aa',
-            padding: { x: 10, y: 10 }
+        this.roomLabel = this.add.text(CX, 16, '📍 PASILLO', {
+            fontFamily: '"Press Start 2P"', fontSize: '10px', fill: '#ffe082', backgroundColor: '#000000aa', padding: { x: 10, y: 10 }
         }).setOrigin(0.5, 0).setDepth(30).setScrollFactor(0);
 
-        // Room definitions for detection
-        this.rooms = [
-            { name: 'COCINA', x1: 0, y1: 0, x2: 90, y2: 700 },
-            { name: 'SALA ABIERTA', x1: 90, y1: 0, x2: 340, y2: 400 },
-            { name: 'SALA BPO', x1: 340, y1: 0, x2: 670, y2: 400 },
-            { name: 'Secretaría', x1: 670, y1: 0, x2: 880, y2: 125 },
-            { name: 'RRHH', x1: 670, y1: 125, x2: 880, y2: 245 },
-            { name: 'CEO', x1: 670, y1: 245, x2: 880, y2: 355 },
-            { name: 'Baño', x1: 670, y1: 355, x2: 880, y2: 460 },
-            { name: 'PASILLO', x1: 880, y1: 0, x2: 1000, y2: 700 },
-            { name: 'MESA DE AYUDA', x1: 90, y1: 400, x2: 340, y2: 700 },
-            { name: 'ALAN TURING', x1: 340, y1: 400, x2: 670, y2: 700 },
-            { name: 'Lobby', x1: 670, y1: 460, x2: 880, y2: 700 }
-        ];
-
-        // ── NPC SALA ABIERTA (Mirando al frente) ──
-        this.npc = this.physics.add.sprite(280, 380, 'personaje', 2).setScale(0.10).setDepth(10).setOrigin(0.5, 1);
-        this.npc.setImmovable(true);
-        this.npc.body.setSize(200, 400).setOffset(92, 600);
+        this.rooms = [{ name: 'COCINA', x1: OFF, y1: 0, x2: OFF+90, y2: 700 }, { name: 'PASILLO', x1: OFF+880, y1: 0, x2: OFF+1000, y2: 700 }];
+        
+        this.npc = this.physics.add.sprite(OFF+280, 380, 'personaje', 2).setScale(0.10).setDepth(10).setOrigin(0.5, 1);
+        this.npc.setImmovable(true); this.npc.body.setSize(200, 400).setOffset(92, 600);
         this.physics.add.collider(this.player, this.npc);
-        
-        // ── NPC MESA DE AYUDA (Mirando al frente) ──
-        this.npc2 = this.physics.add.sprite(320, 500, 'personaje', 2).setScale(0.10).setDepth(10).setOrigin(0.5, 1);
-        this.npc2.setImmovable(true);
-        this.npc2.body.setSize(200, 400).setOffset(92, 600);
-        this.physics.add.collider(this.player, this.npc2);
 
-        // Tecla de interacción
         this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-
-        // UI Diálogo
-        this.npcHint = this.add.text(280, 330, 'Espacio p/ hablar', { fontFamily: '"Press Start 2P"', fontSize: '8px', fill: '#ff0', backgroundColor: '#000c', padding: { x: 8, y: 8 } }).setOrigin(0.5).setDepth(30).setAlpha(0);
-        this.npc2Hint = this.add.text(320, 450, 'Espacio p/ hablar', { fontFamily: '"Press Start 2P"', fontSize: '8px', fill: '#ff0', backgroundColor: '#000c', padding: { x: 8, y: 8 } }).setOrigin(0.5).setDepth(30).setAlpha(0);
-        
-        this.dialogBox = this.add.rectangle(500, 600, 800, 120, 0x000000, 0.9).setDepth(40).setAlpha(0).setScrollFactor(0);
+        this.dialogBox = this.add.rectangle(CX, 600, 800, 120, 0x000000, 0.9).setDepth(40).setAlpha(0).setScrollFactor(0);
         this.dialogBox.setStrokeStyle(4, 0xffffff);
-        this.dialogText = this.add.text(120, 560, '...', { fontFamily: '"Press Start 2P"', fontSize: '14px', fill: '#fff', wordWrap: { width: 740 }, lineSpacing: 10 }).setDepth(41).setAlpha(0).setScrollFactor(0);
-        this.dialogOpen = false;
-        this.activeDialogNPC = null;
-        this.exiting = false;
+        this.dialogText = this.add.text(CX-340, 560, '...', { fontFamily: '"Press Start 2P"', fontSize: '14px', fill: '#fff', wordWrap: { width: 700 }, lineSpacing: 10 }).setDepth(41).setAlpha(0).setScrollFactor(0);
+        this.dialogOpen = false; this.exiting = false;
         createMobileUI(this);
         this.tryAction = () => {
-            const dist1 = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y);
-            const dist2 = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc2.x, this.npc2.y);
-            let canTalkTo = null;
-            if (dist1 < 80) canTalkTo = 1;
-            if (dist2 < 80) canTalkTo = 2;
-            
-            if (canTalkTo) {
-                if (this.dialogOpen && this.activeDialogNPC === canTalkTo) {
-                    this.dialogBox.setAlpha(0); this.dialogText.setAlpha(0);
-                    this.dialogOpen = false; this.activeDialogNPC = null;
-                } else {
-                    this.dialogBox.setAlpha(1);
-                    if (canTalkTo === 1) this.dialogText.setText("Hola. Soy el encargado de la Sala Abierta. Más adelante configuraremos qué decir.");
-                    else this.dialogText.setText("Soy el encargado de Mesa de Ayuda. Todavía no me han dado mis líneas.");
-                    this.dialogText.setAlpha(1); this.dialogOpen = true; this.activeDialogNPC = canTalkTo;
-                }
+            const d1 = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y);
+            if (d1 < 80) {
+                this.dialogBox.setAlpha(1); this.dialogText.setText("Hola. Soy el encargado de la Sala Abierta.").setAlpha(1); this.dialogOpen = true;
             }
         };
     }
@@ -379,40 +283,9 @@ class InteriorScene extends Phaser.Scene {
         else if (this.cursors.up.isDown || this.mobileKeys.up) { this.player.setVelocityY(-220); this.player.anims.play('atras', true); }
         else if (this.cursors.down.isDown || this.mobileKeys.down) { this.player.setVelocityY(220); this.player.anims.play('frente', true); }
 
-        // Room detection
-        const px = this.player.x, py = this.player.y - 30;
-        let found = 'Pasillo';
-        for (const r of this.rooms) {
-            if (px >= r.x1 && px <= r.x2 && py >= r.y1 && py <= r.y2) { found = r.name; break; }
-        }
-        this.roomLabel.setText('📍 ' + found);
-
-        // Salida de Emergencia
-        if (!this.exiting && Phaser.Math.Distance.Between(this.player.x, this.player.y, 45, 680) < 60) {
-            this.exiting = true;
-            this.cameras.main.fadeOut(800, 0, 0, 0);
+        if (!this.exiting && this.player.x < (this.scale.width-1000)/2 + 60 && this.player.y > 640) {
+            this.exiting = true; this.cameras.main.fadeOut(800);
             this.time.delayedCall(900, () => this.scene.start('ExteriorScene'));
-        }
-
-        // Interacción NPCs
-        const dist1 = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc.x, this.npc.y);
-        const dist2 = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.npc2.x, this.npc2.y);
-        
-        let canTalkTo = null;
-        if (dist1 < 80) { canTalkTo = 1; this.npcHint.setAlpha(1); } else { this.npcHint.setAlpha(0); }
-        if (dist2 < 80) { canTalkTo = 2; this.npc2Hint.setAlpha(1); } else { this.npc2Hint.setAlpha(0); }
-
-        if (canTalkTo) {
-            if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-                if (this.tryAction) this.tryAction();
-            }
-        } else {
-            if (this.dialogOpen) {
-                this.dialogBox.setAlpha(0);
-                this.dialogText.setAlpha(0);
-                this.dialogOpen = false;
-                this.activeDialogNPC = null;
-            }
         }
     }
 }
@@ -426,7 +299,7 @@ const config = {
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: 1000,
+        width: 1250,
         height: 700,
         parent: 'game-app'
     },
@@ -434,7 +307,22 @@ const config = {
     physics: { default: 'arcade', arcade: { debug: false } },
     scene: [ExteriorScene, InteriorScene]
 };
-new Phaser.Game(config);
+
+// Lógica de Inicio (Splash Screen)
+document.getElementById('btn-play').addEventListener('click', () => {
+    document.getElementById('splash').style.display = 'none';
+    document.getElementById('game-app').style.display = 'block';
+    
+    const game = new Phaser.Game(config);
+    
+    // Forzar pantalla completa en celular
+    setTimeout(() => {
+        if (game.device.os.android || game.device.os.iOS) {
+            if (game.scale.isFullscreenAllowed) game.scale.startFullscreen();
+        }
+    }, 500);
+});
+
 </script>
 </body>
 </html>
