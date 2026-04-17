@@ -17,38 +17,45 @@
 <script>
 function createMobileUI(scene) {
     scene.mobileKeys = { left: false, right: false, up: false, down: false };
-    const cx = 150, cy = 550, d = 55;
+    const h = scene.sys.game.canvas.height;
+    const w = scene.sys.game.canvas.width;
+    
+    // Posicionamiento relativo al tamaño del canvas
+    const cx = 140, cy = h - 140, d = 60;
+    
     const addBtn = (x, y, key, text) => {
-        let btn = scene.add.circle(x, y, 28, 0xffffff, 0.15).setDepth(100).setScrollFactor(0).setInteractive();
-        scene.add.text(x, y, text, { fontFamily: '"Press Start 2P"', fontSize: '12px', fill: '#fff' }).setOrigin(0.5).setDepth(101).setScrollFactor(0);
-        btn.on('pointerdown', () => { scene.mobileKeys[key] = true; btn.setAlpha(0.4); });
-        btn.on('pointerup', () => { scene.mobileKeys[key] = false; btn.setAlpha(0.15); });
-        btn.on('pointerout', () => { scene.mobileKeys[key] = false; btn.setAlpha(0.15); });
+        let btn = scene.add.circle(x, y, 32, 0xffffff, 0.2).setDepth(200).setScrollFactor(0).setInteractive();
+        scene.add.text(x, y, text, { fontFamily: '"Press Start 2P"', fontSize: '14px', fill: '#fff' }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
+        btn.on('pointerdown', () => { scene.mobileKeys[key] = true; btn.setAlpha(0.5); });
+        btn.on('pointerup', () => { scene.mobileKeys[key] = false; btn.setAlpha(0.2); });
+        btn.on('pointerout', () => { scene.mobileKeys[key] = false; btn.setAlpha(0.2); });
     };
     addBtn(cx, cy - d, 'up', 'W');
     addBtn(cx, cy + d, 'down', 'S');
     addBtn(cx - d, cy, 'left', 'A');
     addBtn(cx + d, cy, 'right', 'D');
     
-    // Botón Full Screen
-    let fsBtn = scene.add.circle(950, 50, 25, 0x3498db, 0.5).setDepth(100).setScrollFactor(0).setInteractive();
-    scene.add.text(950, 50, '⛶', { fontSize: '20px', fill: '#fff' }).setOrigin(0.5).setDepth(101).setScrollFactor(0);
+    // Botón Full Screen (Esquina superior derecha)
+    let fsBtn = scene.add.circle(w - 50, 50, 30, 0x3498db, 0.5).setDepth(200).setScrollFactor(0).setInteractive();
+    scene.add.text(w - 50, 50, '⛶', { fontSize: '24px', fill: '#fff' }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
     fsBtn.on('pointerdown', () => {
         if (!scene.scale.isFullscreen) scene.scale.startFullscreen();
         else scene.scale.stopFullscreen();
     });
 
-    let actionBtn = scene.add.circle(850, 550, 45, 0xff0000, 0.35).setDepth(100).setScrollFactor(0).setInteractive();
-    scene.add.text(850, 550, 'A', { fontFamily: '"Press Start 2P"', fontSize: '24px', fill: '#fff', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setDepth(101).setScrollFactor(0);
-    actionBtn.on('pointerdown', () => { actionBtn.setAlpha(0.7); if(scene.tryAction) scene.tryAction(); });
-    actionBtn.on('pointerup', () => actionBtn.setAlpha(0.35));
-    actionBtn.on('pointerout', () => actionBtn.setAlpha(0.35));
+    // Botón Acción (Esquina inferior derecha)
+    let actionBtn = scene.add.circle(w - 140, h - 140, 50, 0xff0000, 0.4).setDepth(200).setScrollFactor(0).setInteractive();
+    scene.add.text(w - 140, h - 140, 'A', { fontFamily: '"Press Start 2P"', fontSize: '28px', fill: '#fff', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setDepth(201).setScrollFactor(0);
+    actionBtn.on('pointerdown', () => { actionBtn.setAlpha(0.8); if(scene.tryAction) scene.tryAction(); });
+    actionBtn.on('pointerup', () => actionBtn.setAlpha(0.4));
+    actionBtn.on('pointerout', () => actionBtn.setAlpha(0.4));
 }
 // ═══════════════════════════════════════════════════════════════
 //  ESCENA EXTERIOR
 // ═══════════════════════════════════════════════════════════════
 class ExteriorScene extends Phaser.Scene {
     constructor() { super('ExteriorScene'); }
+    // ... resto de la clase ...
 
     preload() {
         this.load.image('cesped', 'cesped.png');
@@ -407,6 +414,10 @@ const config = {
     backgroundColor: '#1a1a2e',
     pixelArt: true,
     antialias: false,
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
     input: { activePointers: 3 },
     physics: { default: 'arcade', arcade: { debug: false } },
     scene: [ExteriorScene, InteriorScene]
