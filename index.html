@@ -183,21 +183,6 @@ class ExteriorScene extends Phaser.Scene {
         }
     }
 }
-                this.hintText.setText('🔔  Presioná ESPACIO para tocar el timbre').setAlpha(1);
-                if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) { if(this.tryAction) this.tryAction(); }
-            } else { this.hintText.setAlpha(0); }
-        }
-
-        if (this.gateOpen && this.player.y < 170) {
-            this.showMsg('🏢  ¡Bienvenido a Championsys!', 2000);
-            this.time.delayedCall(1500, () => {
-                this.cameras.main.fadeOut(800, 0, 0, 0);
-                this.time.delayedCall(900, () => this.scene.start('InteriorScene'));
-            });
-            this.gateOpen = false; // prevent re-trigger
-        }
-    }
-}
 
 // ═══════════════════════════════════════════════════════════════
 class InteriorScene extends Phaser.Scene {
