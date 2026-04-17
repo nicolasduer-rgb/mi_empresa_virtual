@@ -1,18 +1,19 @@
 {
-  "short_name": "VirtualOffice",
-  "name": "Championsys Virtual Office",
+  "short_name": "EmpresaVrt",
+  "name": "Championsys Empresa Virtual",
+  "description": "Simulación interactiva de oficina virtual para Championsys.",
   "icons": [
     {
       "src": "personaje.png",
-      "sizes": "192x192",
+      "sizes": "192x192 512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
   ],
-  "start_url": "./index.html",
+  "start_url": "/mi_empresa_virtual/index.html",
   "background_color": "#0a0a0a",
-  "display": "standalone",
-  "scope": "./",
   "theme_color": "#3498db",
-  "description": "Virtual office simulation for Championsys"
+  "display": "standalone",
+  "orientation": "landscape",
+  "scope": "/mi_empresa_virtual/"
 }

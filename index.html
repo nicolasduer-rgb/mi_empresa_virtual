@@ -29,6 +29,14 @@ function createMobileUI(scene) {
     addBtn(cx, cy + d, 'down', 'S');
     addBtn(cx - d, cy, 'left', 'A');
     addBtn(cx + d, cy, 'right', 'D');
+    
+    // Botón Full Screen
+    let fsBtn = scene.add.circle(950, 50, 25, 0x3498db, 0.5).setDepth(100).setScrollFactor(0).setInteractive();
+    scene.add.text(950, 50, '⛶', { fontSize: '20px', fill: '#fff' }).setOrigin(0.5).setDepth(101).setScrollFactor(0);
+    fsBtn.on('pointerdown', () => {
+        if (!scene.scale.isFullscreen) scene.scale.startFullscreen();
+        else scene.scale.stopFullscreen();
+    });
 
     let actionBtn = scene.add.circle(850, 550, 45, 0xff0000, 0.35).setDepth(100).setScrollFactor(0).setInteractive();
     scene.add.text(850, 550, 'A', { fontFamily: '"Press Start 2P"', fontSize: '24px', fill: '#fff', stroke: '#000', strokeThickness: 4 }).setOrigin(0.5).setDepth(101).setScrollFactor(0);
