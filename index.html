@@ -8,22 +8,23 @@
     <style>
         * { margin: 0; padding: 0; }
         body, html { width: 100%; height: 100%; overflow: hidden; background: #000; }
-        canvas { display: block; }
+        #game-app { width: 100%; height: 100%; }
+        canvas { display: block; margin: auto; }
     </style>
-    <link rel="manifest" href="manifest.json?v=3">
+    <link rel="manifest" href="manifest.json?v=4">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#3498db">
+    <meta name="theme-color" content="#0a0a0a">
 </head>
 <body>
 <div id="game-app"></div>
 <script>
-// v2.1 - Fix Escala Crítica
+// v2.2 - Final Mobile Scale Fix
 function createMobileUI(scene) {
     scene.mobileKeys = { left: false, right: false, up: false, down: false };
     const h = scene.scale.height;
     const w = scene.scale.width;
     
-    // Posicionamiento relativo al tamaño del canvas detectado
+    // Posicionamiento adaptativo basado en el tamaño detectado por el motor
     const cx = 130, cy = h - 130, d = 55;
     
     const addBtn = (x, y, key, text) => {
@@ -53,10 +54,11 @@ function createMobileUI(scene) {
     actionBtn.on('pointerup', () => actionBtn.setAlpha(0.4));
     actionBtn.on('pointerout', () => actionBtn.setAlpha(0.4));
     
-    // Indicador de Versión (Para verificar que cargó la nueva)
-    scene.add.text(w/2, h - 20, 'v2.1 - MOBILE FIX', { fontSize: '8px', fill: '#444' }).setOrigin(0.5);
+    // Indicador de Versión
+    scene.add.text(w/2, 20, 'v2.2 FIX', { fontSize: '10px', fill: '#555' }).setOrigin(0.5).setDepth(300);
 }
 // ═══════════════════════════════════════════════════════════════
+// ... [Mismo código de escenas] ...
 // ... [Mismo código de escenas] ...
 //  ESCENA EXTERIOR
 // ═══════════════════════════════════════════════════════════════
@@ -418,16 +420,15 @@ class InteriorScene extends Phaser.Scene {
 // ═══════════════════════════════════════════════════════════════
 const config = {
     type: Phaser.AUTO,
-    width: 1000,
-    height: 700,
-    parent: 'game-app',
     backgroundColor: '#1a1a2e',
     pixelArt: true,
     antialias: false,
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        expandParent: false
+        width: 1000,
+        height: 700,
+        parent: 'game-app'
     },
     input: { activePointers: 3 },
     physics: { default: 'arcade', arcade: { debug: false } },
