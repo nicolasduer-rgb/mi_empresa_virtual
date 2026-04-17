@@ -1,0 +1,21 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Project specific
+node_modules/
+.vscode/
+# AI Assistance Files
+.gemini/
+.antigravity/
+implementation_plan.md
+task.md
+walkthrough.md
+analysis_results.md
+research_notes.md
+experiment_results.md
