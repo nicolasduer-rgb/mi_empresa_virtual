@@ -80,6 +80,8 @@ class ExteriorScene extends Phaser.Scene {
         this.load.image('cesped', 'cesped.png');
         this.load.image('camino', 'camino.png');
         this.load.image('reja', 'reja.png');
+        this.load.image('piso_madera', 'piso_madera.png');
+        this.load.image('marmol_verde', 'marmol_verde.png');
         this.load.spritesheet('personaje', 'personaje.png', { frameWidth: 384, frameHeight: 1024 });
     }
     create() {
@@ -190,23 +192,21 @@ class InteriorScene extends Phaser.Scene {
     init(data) { this.spawnSource = data.spawnSource || 'exterior'; }
 
     create() {
-        const T = 8; const W = this.scale.width; const H = this.scale.height; const CX = W / 2;
+        const T = 14; const W = this.scale.width; const H = this.scale.height; const CX = W / 2;
         const OFF = (W - 1000) / 2;
         this.cameras.main.fadeIn(800);
 
-        // Piso
-        this.add.rectangle(CX, 350, W, 700, 0x8B7355);
+        // Fondo y Piso
+        this.add.tileSprite(CX, 350, W, 700, 'marmol_verde');
+        this.add.tileSprite(CX, 350, 1000, 700, 'piso_madera');
+        
         const g = this.add.graphics();
-        g.lineStyle(1, 0x6B5B3A, 0.3);
-        for (let y = 0; y < 700; y += 28) { g.moveTo(0, y); g.lineTo(W, y); }
-        for (let r = 0; r < 25; r++) {
-            const yy = r * 28, offX = (r % 2) * 55;
-            for (let x = offX; x < W; x += 110) { g.moveTo(x, yy); g.lineTo(x, yy + 28); }
-        }
+        g.lineStyle(1, 0x000000, 0.05);
+        for (let y = 0; y < 700; y += 28) { g.moveTo(OFF, y); g.lineTo(OFF+1000, y); }
         g.strokePath();
 
         // Room Tints
-        const tint = (x1, y1, x2, y2, c) => this.add.rectangle(OFF+x1+(x2-x1)/2, y1+(y2-y1)/2, x2-x1, y2-y1, c, 0.12);
+        const tint = (x1, y1, x2, y2, c) => this.add.rectangle(OFF+x1+(x2-x1)/2, y1+(y2-y1)/2, x2-x1, y2-y1, c, 0.05);
         tint(0,0,90,700, 0xCC4444); tint(90,0,340,400, 0x44CC44); tint(340,0,670,400, 0x4444CC);
         tint(670,0,880,125, 0xCCCC44); tint(670,125,880,245, 0xCC8844); tint(670,245,880,355, 0x44CCCC);
         tint(670,355,880,460, 0x88CCCC); tint(880,0,1000,700, 0x886644); tint(90,400,340,700, 0xCC44CC);
@@ -228,7 +228,11 @@ class InteriorScene extends Phaser.Scene {
 
         this.walls = this.physics.add.staticGroup();
         const w = (cx, cy, ww, hh) => {
-            const r = this.add.rectangle(OFF+cx, cy, ww, hh, 0x333333).setDepth(5);
+            // Sombra para profundidad (efecto 3D)
+            this.add.rectangle(OFF+cx + 4, cy + 4, ww, hh, 0x000000, 0.2).setDepth(4);
+            // Parte superior de la pared
+            const r = this.add.rectangle(OFF+cx, cy, ww, hh, 0xffffff).setDepth(5);
+            r.setStrokeStyle(1, 0xdddddd, 1);
             this.walls.add(r); r.body.setSize(ww, hh); r.body.updateFromGameObject();
         };
         w(500, T/2, 1000, T); w(T/2, 350, T, 700); w(1000-T/2, 350, T, 700); w(440, 700-T/2, 880, T);
@@ -365,23 +369,21 @@ class SecondFloorScene extends Phaser.Scene {
     init(data) { this.spawnSource = data.spawnSource || 'interior_right'; }
 
     create() {
-        const T = 8; const W = this.scale.width; const H = this.scale.height; const CX = W / 2;
+        const T = 14; const W = this.scale.width; const H = this.scale.height; const CX = W / 2;
         const OFF = (W - 1000) / 2;
         this.cameras.main.fadeIn(800);
 
-        // Piso
-        this.add.rectangle(CX, 350, W, 700, 0x8B7355);
+        // Fondo y Piso
+        this.add.tileSprite(CX, 350, W, 700, 'marmol_verde');
+        this.add.tileSprite(CX, 350, 1000, 700, 'piso_madera');
+        
         const g = this.add.graphics();
-        g.lineStyle(1, 0x6B5B3A, 0.3);
-        for (let y = 0; y < 700; y += 28) { g.moveTo(0, y); g.lineTo(W, y); }
-        for (let r = 0; r < 25; r++) {
-            const yy = r * 28, offX = (r % 2) * 55;
-            for (let x = offX; x < W; x += 110) { g.moveTo(x, yy); g.lineTo(x, yy + 28); }
-        }
+        g.lineStyle(1, 0x000000, 0.05);
+        for (let y = 0; y < 700; y += 28) { g.moveTo(OFF, y); g.lineTo(OFF+1000, y); }
         g.strokePath();
 
         // Room Tints
-        const tint = (x1, y1, x2, y2, c) => this.add.rectangle(OFF+x1+(x2-x1)/2, y1+(y2-y1)/2, x2-x1, y2-y1, c, 0.12);
+        const tint = (x1, y1, x2, y2, c) => this.add.rectangle(OFF+x1+(x2-x1)/2, y1+(y2-y1)/2, x2-x1, y2-y1, c, 0.05);
         // Top Rooms
         tint(100, 0, 400, 300, 0x44CC44); 
         tint(400, 0, 900, 300, 0x222222); 
@@ -405,7 +407,11 @@ class SecondFloorScene extends Phaser.Scene {
 
         this.walls = this.physics.add.staticGroup();
         const w = (cx, cy, ww, hh) => {
-            const r = this.add.rectangle(OFF+cx, cy, ww, hh, 0x333333).setDepth(5);
+            // Sombra para profundidad (efecto 3D)
+            this.add.rectangle(OFF+cx + 4, cy + 4, ww, hh, 0x000000, 0.2).setDepth(4);
+            // Parte superior de la pared
+            const r = this.add.rectangle(OFF+cx, cy, ww, hh, 0xffffff).setDepth(5);
+            r.setStrokeStyle(1, 0xdddddd, 1);
             this.walls.add(r); r.body.setSize(ww, hh); r.body.updateFromGameObject();
         };
         
